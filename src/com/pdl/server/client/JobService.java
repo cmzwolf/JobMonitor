@@ -15,4 +15,6 @@ public interface JobService extends RemoteService {
 	JobBean[] getJobList(Integer idUser, String mail, String gridId) throws IllegalArgumentException;
 	
 	Boolean deleteJob(Integer idUser, String mail, Integer idJob);
+	
+	String getURLmainServlet();
 }

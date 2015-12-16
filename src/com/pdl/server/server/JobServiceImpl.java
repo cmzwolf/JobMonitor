@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.ivoa.pdr.business.GlobalTechConfigBusiness;
 import net.ivoa.pdr.business.JobBusiness;
 import net.ivoa.pdr.business.UserBusiness;
 import net.ivoa.pdr.commons.JobBean;
@@ -43,7 +44,7 @@ public class JobServiceImpl extends RemoteServiceServlet implements JobService {
 				toReturn.setPhase(phase);
 				toReturn.setDemandDate(demandDateforUser);
 				toReturn.setFinishingDate(notificationDate);
-				
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,6 +148,20 @@ public class JobServiceImpl extends RemoteServiceServlet implements JobService {
 			success = false;
 		}
 		return success;
+	}
+
+	@Override
+	public String getURLmainServlet() {
+		try {
+			return GlobalTechConfigBusiness.getInstance().getServletContainer();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "wrongFormedURL";
 	}
 
 }

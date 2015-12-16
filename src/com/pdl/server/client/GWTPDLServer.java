@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -41,6 +42,8 @@ public class GWTPDLServer implements EntryPoint {
 	private int idUser;
 	private String mail;
 	private String gridId;
+
+	private String urlMainServlet;
 
 	final Label jobIdLabel = new Label();
 	final Label jobPhaseLabel = new Label();
@@ -78,27 +81,26 @@ public class GWTPDLServer implements EntryPoint {
 		idUser = Integer.parseInt(com.google.gwt.user.client.Window.Location
 				.getParameter("userId"));
 
-		gridId = com.google.gwt.user.client.Window.Location.getParameter("gridId");
-		if(null == gridId || gridId.equalsIgnoreCase("")){
+		gridId = com.google.gwt.user.client.Window.Location
+				.getParameter("gridId");
+		if (null == gridId || gridId.equalsIgnoreCase("")) {
 			gridId = "None";
 		}
-		
-		
 
 		Label userIdentity = new Label();
-		
-		
-		if(gridId.equalsIgnoreCase("None")){
+
+		if (gridId.equalsIgnoreCase("None")) {
 			userIdentity.setText("Job list for user " + mail);
-		}else{
-			userIdentity.setText("Job list for user " + mail+ " and GridId = "+gridId);
+		} else {
+			userIdentity.setText("Job list for user " + mail + " and GridId = "
+					+ gridId);
 		}
-		
+
 		userIdentity.getElement().getStyle().setFontSize(1.5, Unit.EM);
 		userIdentity.setPixelSize(1000, 40);
 
 		panel1 = new VerticalPanel();
-		
+
 		panel2 = new VerticalPanel();
 		panel0 = new HorizontalPanel();
 
@@ -110,6 +112,7 @@ public class GWTPDLServer implements EntryPoint {
 		panel0.add(panel2);
 
 		jobService.getJobList(idUser, mail, gridId, new JobsCallBack());
+		jobService.getURLmainServlet(new urlCallBack());
 
 	}
 
@@ -370,6 +373,24 @@ public class GWTPDLServer implements EntryPoint {
 		panel1.add(table);
 		panel1.add(pager);
 
+		Button downloadButton = new Button();
+		downloadButton.setText("Download all the results");
+		downloadButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+
+				String linkURL = urlMainServlet + "getResultsByGrid?userId="
+						+ idUser + "&mail=" + mail + "&gridId=" + gridId;
+				Window.open(linkURL, "_new", "");
+			}
+		});
+
+		panel1.add(downloadButton);
+
+		panel1.setCellHorizontalAlignment(downloadButton,
+				HasHorizontalAlignment.ALIGN_CENTER);
+		panel1.setCellHorizontalAlignment(pager,
+				HasHorizontalAlignment.ALIGN_CENTER);
+
 	}
 
 	private void updateJob(JobBean[] jobs) {
@@ -379,6 +400,10 @@ public class GWTPDLServer implements EntryPoint {
 	private void updateDetailedJob(JobBean result) {
 		this.detailedJob = result;
 
+	}
+
+	private void updateMainUrl(String url) {
+		this.urlMainServlet = url;
 	}
 
 	private class JobCallBacks implements AsyncCallback<JobBean> {
@@ -408,7 +433,19 @@ public class GWTPDLServer implements EntryPoint {
 		@Override
 		public void onSuccess(Boolean result) {
 			// After the job deletion, we build the list of the new jobs
-			jobService.getJobList(idUser, mail,gridId, new JobsCallBack());
+			jobService.getJobList(idUser, mail, gridId, new JobsCallBack());
+		}
+
+	}
+
+	private class urlCallBack implements AsyncCallback<String> {
+		@Override
+		public void onFailure(Throwable caught) {
+		}
+
+		@Override
+		public void onSuccess(String result) {
+			updateMainUrl(result);
 		}
 
 	}
